@@ -54,9 +54,18 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 101){
-            if(requestCode == Activity.RESULT_OK){
-                Notes new_notes = (Notes) data.getSerializableExtra("note");
+            if(resultCode == Activity.RESULT_OK){
+                Notes new_notes = (Notes) data.getSerializableExtra("notes");
                 database.mainDAO().inserts(new_notes);
+                notes.clear();
+                notes.addAll(database.mainDAO().getAll());
+                notesListAdapter.notifyDataSetChanged();
+            }
+        }
+        else if(requestCode==102){
+            if(resultCode==Activity.RESULT_OK){
+                Notes new_notes = (Notes) data.getSerializableExtra("notes");
+                database.mainDAO().update(new_notes.getID(), new_notes.getTitle(), new_notes.getNotes());
                 notes.clear();
                 notes.addAll(database.mainDAO().getAll());
                 notesListAdapter.notifyDataSetChanged();
@@ -73,7 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private final NotesClickListener notesClickListener = new NotesClickListener() {
         @Override
         public void onClick(Notes notes) {
-
+            Intent intent = new Intent(MainActivity.this, NotesTakerActivity.class);
+            intent.putExtra("old_notes", notes);
+            startActivityForResult(intent, 102);
         }
 
         @Override
